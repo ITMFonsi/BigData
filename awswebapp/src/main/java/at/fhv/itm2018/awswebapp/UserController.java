@@ -9,8 +9,16 @@ public class UserController {
     private static String template = "Welcome, %s";
 
     @RequestMapping("/welcome")
-    public User welcome(@RequestParam(value="name", defaultValue = "!") String name, @RequestParam(value="lname", defaultValue = "!") String lname) {
-        return new User(String.format(template, name), lname);
+    public String welcome(@RequestParam(value="name", defaultValue = "!") String name, @RequestParam(value="lname", defaultValue = "!") String lname) {
+        return new String("<html>\n" +
+                "   <head>\n" +
+                "      <title>Hello from our AWS Web-APP</title>\n" +
+        "   </head>\n" +
+                "\n" +
+                "   <body>\n" +
+                "      <h2>Looks like our Web-app is running!</h2>\n" +
+                "   </body>\n" +
+                "</html>");
     }
 
 }

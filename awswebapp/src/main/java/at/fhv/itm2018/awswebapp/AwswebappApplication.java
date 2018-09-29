@@ -7,10 +7,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class AwswebappApplication {
 
 	public static void main(String[] args) {
-
-		User user = new User("fonsi", "fons");
-
-
 		SpringApplication.run(AwswebappApplication.class, args);
 	}
 }
