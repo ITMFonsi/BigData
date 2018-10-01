@@ -8,18 +8,18 @@ public class PiResult implements Serializable {
     @Getter
     @Setter
     private double pi;
-    @Getter @Setter private long duration;
+    @Getter @Setter private long durationMilliSec;
 
 
     public PiResult(int numberOfThrows) {
         long startTime = System.nanoTime();
         pi = getPi(numberOfThrows);
         long endTime = System.nanoTime();
-        duration = (endTime - startTime) / 1000000;
+        durationMilliSec = (endTime - startTime) / 1000000;
     }
 
+    // Source: https://rosettacode.org/wiki/Monte_Carlo_methods#Java
     public static double getPi(int numThrows){
-
         int inCircle= 0;
         for(int i= 0;i < numThrows;i++){
             double randX= (Math.random() * 2) - 1;//range -1 to 1
@@ -31,8 +31,9 @@ public class PiResult implements Serializable {
         }
         return 4.0 * inCircle / numThrows;
     }
+
     @Override
     public String toString() {
-        return "Pi: " + pi + "  Duration in milliseconds: " + duration;
+        return "Pi: " + pi + "  Duration in milliseconds: " + durationMilliSec;
     }
 }
