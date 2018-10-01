@@ -9,8 +9,7 @@ import java.util.LinkedList;
 
 @Controller
 public class PiResultController {
-
-    @RequestMapping(value = { "/getAllPiResults" }, method = RequestMethod.GET)
+    @RequestMapping(value = {"/welcome"}, method = RequestMethod.GET)
     public ModelAndView listAllPiResults() {
         LinkedList<String> list = new LinkedList<>();
         list.add("HELLO WORLD!");
