@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class PiResult {
+
+    private String nameOfInstance;
     private double pi;
     private long durationMilliSec;
 
@@ -24,11 +26,12 @@ public class PiResult {
         this.durationMilliSec = durationMilliSec;
     }
 
+    public void setNameOfInstance(String nameOfInstance) {
+        this.nameOfInstance = nameOfInstance;
+    }
+
     @Override
     public String toString() {
-        return "PiResult{" +
-                "pi='" + pi + '\'' +
-                ", duration=" + durationMilliSec +
-                '}';
+        return nameOfInstance + " -->  value of pi: " + pi + " | duration in milliseconds: " + durationMilliSec;
     }
 }

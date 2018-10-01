@@ -10,22 +10,17 @@ import java.util.LinkedList;
 
 @Controller
 public class PiResultController {
-    @RequestMapping(value = {"/getAllPiResults"}, method = RequestMethod.GET)
-    public ModelAndView listAllPiResults() {
-        LinkedList<String> list = new LinkedList<>();
-        PiResultService s1 = new PiResultService();
 
-        list.add(s1.getResultsFromInstances());
 
-        ModelAndView map = new ModelAndView("index");
-        map.addObject("lists", list);
-
-        return map;
+    public LinkedList<String>  listAllPiResults(String numberOfThrows) {
+        PiResultService s1 = new PiResultService(numberOfThrows);
+        return s1.getResultsFromInstances();
     }
 
     @RequestMapping(value="/getpiresult", method=RequestMethod.POST)
     public ModelAndView getPiResult(@RequestParam("throws") String numberOfthrows) {
-
-        return null;
+        ModelAndView map = new ModelAndView("index");
+        map.addObject("lists", listAllPiResults(numberOfthrows));
+        return map;
     }
 }
