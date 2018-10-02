@@ -17,7 +17,7 @@ public class AWSService {
 
 
     public AWSService() {
-        BasicAWSCredentials awsCreds = new BasicAWSCredentials("AKIAI54FL63RF3MMIR4A", "ZtDCCYQLPqPt9IWgxhQGbwOGwxokSog8a1jAWJGD");
+        BasicAWSCredentials awsCreds = new BasicAWSCredentials("", "");
         ec2Client = AmazonEC2ClientBuilder.standard()
                 .withCredentials(new AWSStaticCredentialsProvider(awsCreds))
                 .withRegion("us-west-2")
