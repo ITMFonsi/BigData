@@ -2,15 +2,9 @@ package at.fhv.itm2018.aufgabe5dynamicMasterWorker;
 
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.auth.BasicSessionCredentials;
-import com.amazonaws.regions.Regions;
 import com.amazonaws.services.ec2.AmazonEC2;
 import com.amazonaws.services.ec2.AmazonEC2ClientBuilder;
 import com.amazonaws.services.ec2.model.*;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-import com.amazonaws.waiters.Waiter;
-
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -18,61 +12,19 @@ import java.util.List;
 public class AWSService {
 
     private AmazonEC2 ec2Client;
-
     private KeyPair keyPair;
-
-    private List<Instance> instances;
+    private List<String> instancesId;
 
 
     public AWSService() {
-        BasicAWSCredentials awsCreds = new BasicAWSCredentials("AKIAJOZ6WNQJ3QI27QLQ", "7qghBpZsohlIAMY6dbxuJLkQPJ8v6C1D0XSHQh/f");
+        BasicAWSCredentials awsCreds = new BasicAWSCredentials("AKIAI54FL63RF3MMIR4A", "ZtDCCYQLPqPt9IWgxhQGbwOGwxokSog8a1jAWJGD");
         ec2Client = AmazonEC2ClientBuilder.standard()
                 .withCredentials(new AWSStaticCredentialsProvider(awsCreds))
                 .withRegion("us-west-2")
                 .build();
     }
 
-
-    public void createSecGroup() {
-        CreateSecurityGroupRequest csgr = new CreateSecurityGroupRequest();
-        csgr.withGroupName("JavaSecurityGroup").withDescription("My security group");
-        CreateSecurityGroupResult createSecurityGroupResult =
-                ec2Client.createSecurityGroup(csgr);
-
-        IpPermission ipPermission = new IpPermission();
-
-        IpRange ipRange1 = new IpRange().withCidrIp("111.111.111.111/32");
-        IpRange ipRange2 = new IpRange().withCidrIp("150.150.150.150/32");
-
-        ipPermission.withIpv4Ranges(Arrays.asList(new IpRange[] {ipRange1, ipRange2}))
-                .withIpProtocol("tcp")
-                .withFromPort(22)
-                .withToPort(22);
-
-        AuthorizeSecurityGroupIngressRequest authorizeSecurityGroupIngressRequest =
-                new AuthorizeSecurityGroupIngressRequest();
-
-        authorizeSecurityGroupIngressRequest.withGroupName("JavaSecurityGroup")
-                .withIpPermissions(ipPermission);
-
-        ec2Client.authorizeSecurityGroupIngress(authorizeSecurityGroupIngressRequest);
-    }
-
-    public void createKeyPair() {
-        CreateKeyPairRequest createKeyPairRequest = new CreateKeyPairRequest();
-
-        createKeyPairRequest.withKeyName("aws-sdk-keypair");
-        CreateKeyPairResult createKeyPairResult = ec2Client.createKeyPair(createKeyPairRequest);
-
-        keyPair = new KeyPair();
-
-        keyPair = createKeyPairResult.getKeyPair();
-
-        String privateKey = keyPair.getKeyMaterial();
-
-    }
-
-    public void startInstances(int numOfInstances) {
+    public LinkedList<String>  startInstances(int numOfInstances) {
         RunInstancesRequest runInstancesRequest = new RunInstancesRequest();
 
         runInstancesRequest.withImageId("ami-0fd2edefa90906902")
@@ -85,22 +37,44 @@ public class AWSService {
         RunInstancesResult result = ec2Client.runInstances(
                 runInstancesRequest);
 
+        LinkedList<String> dnsNames = getWorkerDNSNames();
+        waitForInstanceState(instancesId, InstanceStateName.Running);
 
-
-
+        return dnsNames;
     }
 
-    public boolean allInstancesAreRunning() {
-        for (Instance inst : instances) {
-            if(!inst.getState().getName().equals("running")) {
-                return false;
+    private void waitForInstanceState(List<String> instancesId, InstanceStateName state) {
+        int numAchievedState = 0;
+
+        while (numAchievedState != instancesId.size()) {
+
+            try {
+                Thread.sleep(15000);
+            } catch (InterruptedException ex) {
+
+            }
+
+            numAchievedState = 0;
+
+            DescribeInstancesRequest describeInstance = new DescribeInstancesRequest().withInstanceIds(instancesId);
+            DescribeInstancesResult describeResult = ec2Client.describeInstances(describeInstance);
+            List<Reservation> reservations = describeResult.getReservations();
+
+            //different instances might be in different reservation requests
+            //so we need to traverse those
+            for (Reservation reservation : reservations) {
+                List<Instance> instances = reservation.getInstances();
+                for (Instance instance : instances) {
+                    if (instance.getState().getName().equals(state.toString())) {
+                        numAchievedState++;
+                    }
+                }
             }
         }
-        return true;
     }
 
     public LinkedList<String> getWorkerDNSNames() {
-        instances = new LinkedList<>();
+        instancesId = new LinkedList<>();
         boolean done = false;
         LinkedList<String> dnsNames = new LinkedList<>();
         DescribeInstancesRequest request = new DescribeInstancesRequest();
@@ -112,7 +86,7 @@ public class AWSService {
                     for (GroupIdentifier id : instance.getSecurityGroups()) {
                         if(id.getGroupName().equals("worker")) {
                             dnsNames.add(instance.getPublicDnsName());
-                            instances.add(instance);
+                            instancesId.add(instance.getInstanceId());
                         }
                     }
                 }
@@ -125,5 +99,8 @@ public class AWSService {
         return dnsNames;
     }
 
-
+    public void terminateInstances() {
+        TerminateInstancesRequest request = new TerminateInstancesRequest(instancesId);
+        ec2Client.terminateInstances(request);
+    }
 }

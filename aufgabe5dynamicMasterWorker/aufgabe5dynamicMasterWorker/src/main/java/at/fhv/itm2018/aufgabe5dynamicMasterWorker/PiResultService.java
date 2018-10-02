@@ -19,26 +19,18 @@ public class PiResultService {
 
     public LinkedList<String> getResultsFromInstances() {
         LinkedList<String> results = new LinkedList<>();
+        LinkedList<String> dnsNames = new LinkedList<>();
 
-        awsService.startInstances(Integer.valueOf(numOfInstances));
-        LinkedList<String> dnsNames = awsService.getWorkerDNSNames();
-
-
-
-
-
+        dnsNames = awsService.startInstances(Integer.valueOf(numOfInstances));
         RestTemplate restTemplate = new RestTemplate();
-        PiResult result1 = restTemplate.getForObject(url1, PiResult.class);
-        result1.setNameOfInstance("INSTANCE 1 : " + instance1);
-        PiResult result2 = restTemplate.getForObject(url2, PiResult.class);
-        result2.setNameOfInstance("INSTANCE 2 : " + instance2);
-        PiResult result3 = restTemplate.getForObject(url3, PiResult.class);
-        result3.setNameOfInstance("INSTANCE 3 : " + instance3);
-
-        results.add(result1.toString());
-        results.add(result2.toString());
-        results.add(result3.toString());
-
+        int dividedThrows =  Integer.valueOf(numOfThrows) / Integer.valueOf(numOfInstances);
+        for (String dnsName: dnsNames) {
+           String url = "http://" + dnsName + ":8080/awswebapp/getpi"+"?throws=" + String.valueOf(dividedThrows);
+           PiResult piResult = restTemplate.getForObject(url, PiResult.class);
+           piResult.setNameOfInstance(dnsName);
+           results.add(piResult.toString());
+        }
+        awsService.terminateInstances();
         return results;
     }
 
