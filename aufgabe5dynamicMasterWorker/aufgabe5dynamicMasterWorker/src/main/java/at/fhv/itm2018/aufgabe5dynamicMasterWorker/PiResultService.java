@@ -6,22 +6,26 @@ import java.util.LinkedList;
 
 public class PiResultService {
 
-    private static String instance1 = "http://ec2-54-185-172-22.us-west-2.compute.amazonaws.com:8080/awswebapp/getpi";
-    private static String instance2 = "http://ec2-54-190-132-56.us-west-2.compute.amazonaws.com:8080/awswebapp/getpi";
-    private static String instance3 = "http://ec2-34-220-223-23.us-west-2.compute.amazonaws.com:8080/awswebapp/getpi";
-
     private String numOfThrows;
+    private String numOfInstances;
 
-    public PiResultService(String numberOfThrows) {
+    private AWSService awsService;
+
+    public PiResultService(String numberOfThrows, String numOfInstances) {
         numOfThrows = numberOfThrows;
+        this.numOfInstances = numOfInstances;
+        awsService = new AWSService();
     }
 
     public LinkedList<String> getResultsFromInstances() {
         LinkedList<String> results = new LinkedList<>();
 
-        String url1 = instance1 + "?throws=" + numOfThrows;
-        String url2 = instance2 + "?throws=" + numOfThrows;
-        String url3 = instance3 + "?throws=" + numOfThrows;
+        awsService.startInstances(Integer.valueOf(numOfInstances));
+        LinkedList<String> dnsNames = awsService.getWorkerDNSNames();
+
+
+
+
 
         RestTemplate restTemplate = new RestTemplate();
         PiResult result1 = restTemplate.getForObject(url1, PiResult.class);

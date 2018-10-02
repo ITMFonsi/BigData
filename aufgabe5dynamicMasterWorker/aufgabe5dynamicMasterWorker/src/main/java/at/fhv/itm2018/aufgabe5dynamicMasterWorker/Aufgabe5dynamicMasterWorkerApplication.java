@@ -7,6 +7,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class Aufgabe5dynamicMasterWorkerApplication {
 
 	public static void main(String[] args) {
+
 		SpringApplication.run(Aufgabe5dynamicMasterWorkerApplication.class, args);
 	}
 }

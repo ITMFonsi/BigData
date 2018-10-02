@@ -16,21 +16,24 @@
 </head>
 
 <body>
-<h1>Please enter a number of throws: </h1>
-<form name="getpiresult" action="getpiresult" method="POST" >
-    <label>Throws of darts:</label>
-    <input type='text' name='throws' />
-    <input type="submit" value="Get all results">
-</form>
-<h1>All Pi Results</h1>
-<c:if test="${not empty lists}">
-    <c:forEach items="${lists}" var="lists">
-        <p>
-                ${lists}
-            <br>
-        </p>
 
-    </c:forEach>
-</c:if>
+    <h1>Please enter a number of throws: </h1>
+    <form name="getpiresult" action="getpiresult" method="POST" >
+        <label>Throws of darts:</label>
+        <input type='text' name='throws' />
+        <label>Number of instances</label>
+        <input type='text' name='instances' />
+        <input type="submit" value="Calculate">
+    </form>
+    <h1>All Pi Results</h1>
+    <c:if test="${not empty lists}">
+        <c:forEach items="${lists}" var="lists">
+            <p>
+                    ${lists}
+                <br>
+            </p>
+
+        </c:forEach>
+    </c:if>
 </body>
 </html>
